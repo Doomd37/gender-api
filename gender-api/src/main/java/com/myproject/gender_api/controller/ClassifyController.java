@@ -1,5 +1,6 @@
 package com.myproject.gender_api.controller;
 
+import com.myproject.gender_api.customException.BadRequestException;
 import com.myproject.gender_api.service.GenderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,7 +22,11 @@ public class ClassifyController {
     public ResponseEntity<?> classify(@RequestParam(required = false) String name) {
 
         if (name == null || name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name is required");
+            throw new BadRequestException("Missing or empty name parameter");
+        }
+
+        if (!name.matches("[a-zA-Z]+")) {
+            throw new BadRequestException("Name must be a string containing only letters");
         }
 
         return ResponseEntity.ok(genderService.classifyName(name));

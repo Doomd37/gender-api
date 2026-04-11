@@ -1,5 +1,7 @@
 package com.myproject.gender_api.service;
 
+import com.myproject.gender_api.customException.ExternalServiceException;
+import com.myproject.gender_api.customException.NoPredictionException;
 import com.myproject.gender_api.dtos.ApiResponse;
 import com.myproject.gender_api.dtos.ClassifyResponse;
 import com.myproject.gender_api.dtos.GenderizeResponse;
@@ -7,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.time.Instant;
-import java.util.Map;
 
 @Service
 public class GenderService {
@@ -22,17 +23,23 @@ public class GenderService {
 
         String url = "https://api.genderize.io?name=" + name;
 
-        GenderizeResponse response = webClient.get()
-                .uri(url)
-                .retrieve()
-                .bodyToMono(GenderizeResponse.class)
-                .block();
+        GenderizeResponse response;
+
+        try {
+            response = webClient.get()
+                    .uri(url)
+                    .retrieve()
+                    .bodyToMono(GenderizeResponse.class)
+                    .block();
+        } catch (Exception e) {
+            throw new ExternalServiceException("Upstream service failure");
+        }
 
         if (response == null ||
                 response.getGender() == null ||
                 ((Number) response.getCount()).intValue() == 0) {
 
-            throw new RuntimeException("No prediction available for the provided name");
+            throw new NoPredictionException("No prediction available for the provided name");
         }
 
         String gender = (String) response.getGender();
