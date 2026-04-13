@@ -23,7 +23,7 @@ public class ClassifyController {
     public ResponseEntity<?> classify(@RequestParam(required = false) String name) {
 
         // 400
-        if (name == null || name.trim().isEmpty()) {
+        if (name == null) {
             return ResponseEntity.status(400).body(
                     Map.of(
                             "status", "error",
@@ -32,6 +32,18 @@ public class ClassifyController {
             );
         }
 
+        // Trim input
+        name = name.trim();
+
+        // Check empty AFTER trimming
+        if (name.isEmpty()) {
+            return ResponseEntity.status(400).body(
+                    Map.of(
+                            "status", "error",
+                            "message", "Missing or empty name parameter"
+                    )
+            );
+        }
 
         try {
             ClassifyResponse result = genderService.classifyName(name.trim());
