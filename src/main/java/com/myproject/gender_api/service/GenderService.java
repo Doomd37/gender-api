@@ -31,26 +31,23 @@ public class GenderService {
                     .retrieve()
                     .bodyToMono(GenderizeResponse.class)
                     .block();
+
         } catch (Exception e) {
             throw new ExternalServiceException("Upstream service failure");
         }
 
-        if (response == null ||
-                response.getGender() == null ||
-                ((Number) response.getCount()).intValue() == 0) {
-
+        if (response == null || response.getGender() == null || response.getCount() == 0) {
             throw new NoPredictionException("No prediction available for the provided name");
         }
 
-        String gender = (String) response.getGender();
-        double probability = ((Number) response.getProbability()).doubleValue();
-        int sampleSize = ((Number) response.getCount()).intValue();
+        double probability = response.getProbability();
+        int sampleSize = response.getCount();
 
         boolean isConfident = probability >= 0.7 && sampleSize >= 100;
 
         ClassifyResponse data = new ClassifyResponse(
                 name,
-                gender,
+                response.getGender(),
                 probability,
                 sampleSize,
                 isConfident,

@@ -1,12 +1,20 @@
 package com.myproject.gender_api.dtos;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ClassifyResponse {
 
     private String name;
     private String gender;
     private double probability;
+
+    @JsonProperty("sample_size")
     private int sampleSize;
+
+    @JsonProperty("is_confident")
     private boolean isConfident;
+
+    @JsonProperty("processed_at")
     private String processedAt;
 
     public ClassifyResponse(String name, String gender, double probability,
@@ -19,10 +27,27 @@ public class ClassifyResponse {
         this.processedAt = processedAt;
     }
 
-    public String getName() { return name; }
-    public String getGender() { return gender; }
-    public double getProbability() { return probability; }
-    public int getSampleSize() { return sampleSize; }
-    public boolean isConfident() { return isConfident; }
-    public String getProcessedAt() { return processedAt; }
+    public String getName() {
+        return name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public double getProbability() {
+        return probability;
+    }
+
+    public int getSampleSize() {
+        return sampleSize;
+    }
+
+    public boolean isConfident() {
+        return isConfident;
+    }
+
+    public String getProcessedAt() {
+        return processedAt;
+    }
 }

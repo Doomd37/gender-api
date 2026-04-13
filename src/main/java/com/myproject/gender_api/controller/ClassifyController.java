@@ -1,15 +1,15 @@
 package com.myproject.gender_api.controller;
 
 import com.myproject.gender_api.customException.BadRequestException;
+import com.myproject.gender_api.dtos.ApiResponse;
+import com.myproject.gender_api.dtos.ClassifyResponse;
 import com.myproject.gender_api.service.GenderService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "*")
 public class ClassifyController {
 
     private final GenderService genderService;
@@ -19,16 +19,18 @@ public class ClassifyController {
     }
 
     @GetMapping("/classify")
-    public ResponseEntity<?> classify(@RequestParam(required = false) String name) {
+    public ResponseEntity<ApiResponse<ClassifyResponse>> classify(
+            @RequestParam(required = false) String name) {
 
+        // Validate input
         if (name == null || name.trim().isEmpty()) {
             throw new BadRequestException("Missing or empty name parameter");
         }
 
-        if (!name.matches("[a-zA-Z]+")) {
-            throw new BadRequestException("Name must be a string containing only letters");
-        }
+        // Call service (business logic handled there)
+        ApiResponse<ClassifyResponse> response =
+                genderService.classifyName(name.trim());
 
-        return ResponseEntity.ok(genderService.classifyName(name));
+        return ResponseEntity.ok(response);
     }
 }

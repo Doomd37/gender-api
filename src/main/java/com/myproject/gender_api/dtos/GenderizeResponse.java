@@ -1,10 +1,17 @@
 package com.myproject.gender_api.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class GenderizeResponse {
+
     private String name;
     private String gender;
     private double probability;
     private int count;
+
+    public GenderizeResponse() {
+    }
 
     public String getName() {
         return name;
