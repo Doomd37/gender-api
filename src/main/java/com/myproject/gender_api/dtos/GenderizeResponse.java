@@ -1,8 +1,7 @@
 package com.myproject.gender_api.dtos;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(ignoreUnknown = true)
+
 public class GenderizeResponse {
 
     private String name;
@@ -10,38 +9,13 @@ public class GenderizeResponse {
     private double probability;
     private int count;
 
-    public GenderizeResponse() {
-    }
+    public String getName() { return name; }
+    public String getGender() { return gender; }
+    public double getProbability() { return probability; }
+    public int getCount() { return count; }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public void setGender(String gender) {
-        this.gender = gender;
-    }
-
-    public double getProbability() {
-        return probability;
-    }
-
-    public void setProbability(double probability) {
-        this.probability = probability;
-    }
-
-    public int getCount() {
-        return count;
-    }
-
-    public void setCount(int count) {
-        this.count = count;
-    }
+    public void setName(String name) { this.name = name; }
+    public void setGender(String gender) { this.gender = gender; }
+    public void setProbability(double probability) { this.probability = probability; }
+    public void setCount(int count) { this.count = count; }
 }

@@ -47,8 +47,7 @@ Error Response Format
 Error Cases
 400 Bad Request → Missing or empty name parameter
 422 Unprocessable Entity → Invalid input or no prediction available from external API
-500 Internal Server Error → Unexpected server side failure
-502 Bad Gateway → External API (Genderize) failure or upstream service issue
+502/500 →  failure or upstream service issue
 
 
 # Architecture & Implementation
@@ -69,10 +68,6 @@ GenderizeResponse → maps external API response
 ClassifyResponse → formatted response sent to client
 ApiResponse<T> → standard wrapper for all responses
 
-# Exception Handling
-Global exception handler using @RestControllerAdvice
-Custom exceptions for validation and external API failures
-External API
 
 This project integrates with:
 

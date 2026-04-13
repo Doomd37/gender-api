@@ -27,27 +27,13 @@ public class ClassifyResponse {
         this.processedAt = processedAt;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getGender() {
-        return gender;
-    }
-
-    public double getProbability() {
-        return probability;
-    }
-
-    public int getSampleSize() {
-        return sampleSize;
-    }
-
-    public boolean isConfident() {
+    public String getName() { return name; }
+    public String getGender() { return gender; }
+    public double getProbability() { return probability; }
+    public int getSampleSize() { return sampleSize; }
+    @JsonProperty("is_confident")
+    public boolean getIsConfident() {
         return isConfident;
     }
-
-    public String getProcessedAt() {
-        return processedAt;
-    }
+    public String getProcessedAt() { return processedAt; }
 }

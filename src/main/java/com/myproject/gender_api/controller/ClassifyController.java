@@ -1,11 +1,12 @@
 package com.myproject.gender_api.controller;
 
-import com.myproject.gender_api.customException.BadRequestException;
 import com.myproject.gender_api.dtos.ApiResponse;
 import com.myproject.gender_api.dtos.ClassifyResponse;
 import com.myproject.gender_api.service.GenderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -19,16 +20,55 @@ public class ClassifyController {
     }
 
     @GetMapping("/classify")
-    public ResponseEntity<ApiResponse<ClassifyResponse>> classify(
-            @RequestParam String name) {
+    public ResponseEntity<?> classify(@RequestParam(required = false) String name) {
 
+        // 400
         if (name == null || name.trim().isEmpty()) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiResponse<>("error", null));
+            return ResponseEntity.status(400).body(
+                    Map.of(
+                            "status", "error",
+                            "message", "Missing or empty name parameter"
+                    )
+            );
         }
 
-        return ResponseEntity.ok(
-                genderService.classifyName(name.trim())
-        );
+        // 422
+        if (!name.matches("^[a-zA-Z]+$")) {
+            return ResponseEntity.status(422).body(
+                    Map.of(
+                            "status", "error",
+                            "message", "name is not a string"
+                    )
+            );
+        }
+
+        try {
+            ClassifyResponse result = genderService.classifyName(name.trim());
+
+            // No prediction
+            if (result == null) {
+                return ResponseEntity.ok(
+                        Map.of(
+                                "status", "error",
+                                "message", "No prediction available for the provided name"
+                        )
+                );
+            }
+
+            // SUCCESS
+            return ResponseEntity.ok(
+                    new ApiResponse<>("success", result)
+            );
+
+        } catch (RuntimeException e) {
+
+            // 502 upstream failure
+            return ResponseEntity.status(502).body(
+                    Map.of(
+                            "status", "error",
+                            "message", "Upstream or server failure"
+                    )
+            );
+        }
     }
 }

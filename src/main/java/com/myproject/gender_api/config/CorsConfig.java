@@ -1,32 +1,30 @@
 package com.myproject.gender_api.config;
 
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.web.server.WebFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 public class CorsConfig {
 
     @Bean
-    public WebFilter corsFilter() {
-        return (exchange, chain) -> {
+    public CorsConfigurationSource corsConfigurationSource() {
 
-            exchange.getResponse().getHeaders()
-                    .add("Access-Control-Allow-Origin", "*");
+        CorsConfiguration config = new CorsConfiguration();
 
-            exchange.getResponse().getHeaders()
-                    .add("Access-Control-Allow-Methods", "*");
+        config.setAllowedOrigins(List.of("*"));
+        config.setAllowedMethods(List.of("*"));
+        config.setAllowedHeaders(List.of("*"));
 
-            exchange.getResponse().getHeaders()
-                    .add("Access-Control-Allow-Headers", "*");
+        UrlBasedCorsConfigurationSource source =
+                new UrlBasedCorsConfigurationSource();
 
-            return chain.filter(exchange);
-        };
+        source.registerCorsConfiguration("/**", config);
+
+        return source;
     }
 }
