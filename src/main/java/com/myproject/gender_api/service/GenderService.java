@@ -1,7 +1,5 @@
 package com.myproject.gender_api.service;
 
-import com.myproject.gender_api.customException.ExternalServiceException;
-import com.myproject.gender_api.customException.NoPredictionException;
 import com.myproject.gender_api.dtos.ApiResponse;
 import com.myproject.gender_api.dtos.ClassifyResponse;
 import com.myproject.gender_api.dtos.GenderizeResponse;
@@ -21,33 +19,38 @@ public class GenderService {
 
     public ApiResponse<ClassifyResponse> classifyName(String name) {
 
-        String url = "https://api.genderize.io?name=" + name;
-
         GenderizeResponse response;
 
         try {
             response = webClient.get()
-                    .uri(url)
+                    .uri("https://api.genderize.io?name=" + name)
                     .retrieve()
                     .bodyToMono(GenderizeResponse.class)
                     .block();
 
         } catch (Exception e) {
-            throw new ExternalServiceException("Upstream service failure");
+            return new ApiResponse<>("error", null);
         }
 
-        if (response == null || response.getGender() == null || response.getCount() == 0) {
-            throw new NoPredictionException("No prediction available for the provided name");
+        // ONLY true failure case
+        if (response == null) {
+            return new ApiResponse<>("error", null);
         }
 
+        String gender = response.getGender();
         double probability = response.getProbability();
         int sampleSize = response.getCount();
+
+        // IMPORTANT: DO NOT THROW EXCEPTIONS HERE
+        if (gender == null || sampleSize == 0) {
+            return new ApiResponse<>("error", null);
+        }
 
         boolean isConfident = probability >= 0.7 && sampleSize >= 100;
 
         ClassifyResponse data = new ClassifyResponse(
                 name,
-                response.getGender(),
+                gender,
                 probability,
                 sampleSize,
                 isConfident,

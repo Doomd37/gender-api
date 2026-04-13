@@ -20,17 +20,15 @@ public class ClassifyController {
 
     @GetMapping("/classify")
     public ResponseEntity<ApiResponse<ClassifyResponse>> classify(
-            @RequestParam(required = false) String name) {
+            @RequestParam String name) {
 
-        // Validate input
         if (name == null || name.trim().isEmpty()) {
-            throw new BadRequestException("Missing or empty name parameter");
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>("error", null));
         }
 
-        // Call service (business logic handled there)
-        ApiResponse<ClassifyResponse> response =
-                genderService.classifyName(name.trim());
-
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(
+                genderService.classifyName(name.trim())
+        );
     }
 }

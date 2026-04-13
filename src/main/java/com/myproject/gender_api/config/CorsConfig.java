@@ -17,17 +17,14 @@ public class CorsConfig {
     public WebFilter corsFilter() {
         return (exchange, chain) -> {
 
-            ServerHttpRequest request = exchange.getRequest();
-            ServerHttpResponse response = exchange.getResponse();
+            exchange.getResponse().getHeaders()
+                    .add("Access-Control-Allow-Origin", "*");
 
-            response.getHeaders().add("Access-Control-Allow-Origin", "*");
-            response.getHeaders().add("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-            response.getHeaders().add("Access-Control-Allow-Headers", "*");
+            exchange.getResponse().getHeaders()
+                    .add("Access-Control-Allow-Methods", "*");
 
-            if (request.getMethod().name().equals("OPTIONS")) {
-                response.setStatusCode(org.springframework.http.HttpStatus.OK);
-                return reactor.core.publisher.Mono.empty();
-            }
+            exchange.getResponse().getHeaders()
+                    .add("Access-Control-Allow-Headers", "*");
 
             return chain.filter(exchange);
         };
