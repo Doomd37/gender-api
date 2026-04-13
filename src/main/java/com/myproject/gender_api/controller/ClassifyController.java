@@ -32,15 +32,6 @@ public class ClassifyController {
             );
         }
 
-        // 422
-        if (!name.matches("^[a-zA-Z]+$")) {
-            return ResponseEntity.status(422).body(
-                    Map.of(
-                            "status", "error",
-                            "message", "name is not a string"
-                    )
-            );
-        }
 
         try {
             ClassifyResponse result = genderService.classifyName(name.trim());

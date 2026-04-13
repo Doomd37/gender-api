@@ -16,7 +16,7 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
-                .cors(cors -> {})   // IMPORTANT: activates Spring CORS system
+                .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
 
         return http.build();
