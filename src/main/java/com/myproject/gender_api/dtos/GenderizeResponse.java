@@ -1,21 +1,18 @@
 package com.myproject.gender_api.dtos;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-
+@Builder
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class GenderizeResponse {
-
-    private String name;
-    private String gender;
-    private double probability;
-    private int count;
-
-    public String getName() { return name; }
-    public String getGender() { return gender; }
-    public double getProbability() { return probability; }
-    public int getCount() { return count; }
-
-    public void setName(String name) { this.name = name; }
-    public void setGender(String gender) { this.gender = gender; }
-    public void setProbability(double probability) { this.probability = probability; }
-    public void setCount(int count) { this.count = count; }
+    private String status;
+    private Object data;
+    private String message;
 }

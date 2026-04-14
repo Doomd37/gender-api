@@ -1,14 +1,13 @@
 package com.myproject.gender_api.service;
 
-
-import com.myproject.gender_api.dtos.ApiResponse;
-import com.myproject.gender_api.dtos.ClassifyResponse;
+import com.myproject.gender_api.dtos.CustomResponse;
 import com.myproject.gender_api.dtos.GenderizeResponse;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.time.Instant;
-
 
 @Service
 public class GenderService {
@@ -19,42 +18,60 @@ public class GenderService {
         this.webClient = webClient;
     }
 
-    public ClassifyResponse classifyName(String name) {
 
+    public ResponseEntity<?> classifyName(String name) {
         try {
-            GenderizeResponse response = webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .scheme("https")
-                            .host("api.genderize.io")
-                            .queryParam("name", name)
-                            .build())
+
+            Map response = webClient.get()
+                    .uri("/?name=" + name)
                     .retrieve()
-                    .bodyToMono(GenderizeResponse.class)
+                    .bodyToMono(Map.class)
                     .block();
 
-            // EDGE CASE: no prediction
-            if (response == null ||
-                    response.getGender() == null ||
-                    response.getCount() == 0) {
-                return null;
+            if (response.get("gender") == null ||
+                    response.get("count") == null ||
+                    ((Number) response.get("count")).intValue() == 0) {
+                return ResponseEntity.status(422).body(
+                        GenderizeResponse.builder()
+                                .status("error")
+                                .message("No prediction available for the provided name")
+                                .build()
+                );
             }
 
-            boolean isConfident =
-                    response.getProbability() >= 0.7 &&
-                            response.getCount() >= 100;
+            String gender = (String) response.get("gender");
+            Integer sampleSize = ((Number) response.get("count")).intValue();
+            Double probability = ((Number) response.get("probability")).doubleValue();
 
-            return new ClassifyResponse(
-                    name,
-                    response.getGender(),
-                    response.getProbability(),
-                    response.getCount(),
-                    isConfident,
-                    Instant.now().toString()
+            boolean isConfident = probability >= 0.7 && sampleSize >= 100;
+
+            String processedAt = Instant.now()
+                    .truncatedTo(ChronoUnit.SECONDS)
+                    .toString();
+
+            CustomResponse data = CustomResponse.builder()
+                    .name(name)
+                    .gender(gender)
+                    .probability(probability)
+                    .sampleSize(sampleSize)
+                    .isConfident(isConfident)
+                    .processedAt(processedAt)
+                    .build();
+
+            return ResponseEntity.ok(
+                    GenderizeResponse.builder()
+                            .status("success")
+                            .data(data)
+                            .build()
             );
 
         } catch (Exception e) {
-            // upstream failure signal
-            throw new RuntimeException("UPSTREAM_ERROR");
+            return ResponseEntity.status(502).body(
+                    GenderizeResponse.builder()
+                            .status("error")
+                            .message("Upstream or server failure")
+                            .build()
+            );
         }
     }
 }

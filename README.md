@@ -11,7 +11,7 @@ Classify Name
 GET /api/classify?name={name}
 Example Request
 GET /api/classify?name=john
-Success Response (200 OK)
+Success Response
 {
 "status": "success",
 "data": {
@@ -34,9 +34,6 @@ probability ≥ 0.7
 sample_size ≥ 100
 processed_at is generated dynamically using UTC time on every request
 
-Error Handling
-
-The application uses a global exception handler (@RestControllerAdvice) to ensure consistent error responses across all endpoints.
 
 Error Response Format
 {
@@ -64,9 +61,8 @@ Calls external Genderize API using WebClient
 Processes and transforms response data
 
 # DTOs
-GenderizeResponse → maps external API response
-ClassifyResponse → formatted response sent to client
-ApiResponse<T> → standard wrapper for all responses
+GenderizeResponse 
+CustomResponse → formatted response sent to client
 
 
 This project integrates with:
@@ -79,7 +75,7 @@ CORS is enabled to allow cross-origin requests:
 Access-Control-Allow-Origin: *
 
 # Tech Stack
-Java 17+
+Java
 Spring Boot
 Spring WebFlux (WebClient)
 Maven
@@ -93,11 +89,6 @@ Maven
    mvn spring-boot:run
 4. Test endpoint
    http://localhost:8080/api/classify?name=john
-   Notes
-   Ensure the server is running before testing
-   All responses follow a consistent JSON structure
-   The API must be deployed for final submission
-   Tested using Postman and browser fetch requests
 
 
 # Author

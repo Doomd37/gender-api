@@ -1,77 +1,45 @@
 package com.myproject.gender_api.controller;
 
-import com.myproject.gender_api.dtos.ApiResponse;
-import com.myproject.gender_api.dtos.ClassifyResponse;
+import com.myproject.gender_api.dtos.GenderizeResponse;
+import com.myproject.gender_api.dtos.CustomResponse;
 import com.myproject.gender_api.service.GenderService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
+import static com.myproject.gender_api.util.AppConstant.classifyEndpoint;
+import static com.myproject.gender_api.util.AppConstant.controllerMapping;
 
 @RestController
-@RequestMapping("/api")
-@CrossOrigin(origins = "*")
+@RequestMapping(controllerMapping)
+@RequiredArgsConstructor
 public class ClassifyController {
 
-    private final GenderService genderService;
+    private final GenderService service;
 
-    public ClassifyController(GenderService genderService) {
-        this.genderService = genderService;
+    @GetMapping(classifyEndpoint)
+    public ResponseEntity<?> fetchGenderizer(@RequestParam(required = false) String name) {
+
+        if (name == null || name.trim().isEmpty()) {
+            return ResponseEntity.status(400).body(
+                    GenderizeResponse.builder()
+                            .status("error")
+                            .message("Missing or empty name parameter")
+                            .build()
+            );
+        } else if (!name.matches("[a-zA-Z]+")) {
+            return ResponseEntity.status(422).body(
+                    GenderizeResponse.builder()
+                            .status("error")
+                            .message("Name must be a string")
+                            .build()
+            );
+        }
+
+        return service.classifyName(name);
     }
 
-    @GetMapping("/classify")
-    public ResponseEntity<?> classify(@RequestParam(required = false) String name) {
-
-        // 400
-        if (name == null) {
-            return ResponseEntity.status(400).body(
-                    Map.of(
-                            "status", "error",
-                            "message", "Missing or empty name parameter"
-                    )
-            );
-        }
-
-        // Trim input
-        name = name.trim();
-
-        // Check empty AFTER trimming
-        if (name.isEmpty()) {
-            return ResponseEntity.status(400).body(
-                    Map.of(
-                            "status", "error",
-                            "message", "Missing or empty name parameter"
-                    )
-            );
-        }
-
-        try {
-            ClassifyResponse result = genderService.classifyName(name.trim());
-
-            // No prediction
-            if (result == null) {
-                return ResponseEntity.ok(
-                        Map.of(
-                                "status", "error",
-                                "message", "No prediction available for the provided name"
-                        )
-                );
-            }
-
-            // SUCCESS
-            return ResponseEntity.ok(
-                    new ApiResponse<>("success", result)
-            );
-
-        } catch (RuntimeException e) {
-
-            // 502 upstream failure
-            return ResponseEntity.status(502).body(
-                    Map.of(
-                            "status", "error",
-                            "message", "Upstream or server failure"
-                    )
-            );
-        }
-    }
 }
